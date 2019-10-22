@@ -1,8 +1,9 @@
 # Rosen
 # GUI with functionality connecting the two parts of the program - keyword-search Categorization and Sentiment Analysis
 
-from tkinter import Tk, Button, Frame, PhotoImage, Message, Canvas, Label, Listbox, Scrollbar, \
-    RIGHT, X, Y, END, BOTTOM, HORIZONTAL, VERTICAL, Entry, Checkbutton, OptionMenu, Toplevel, filedialog, StringVar, IntVar
+from tkinter import Tk, Button, Frame, PhotoImage, Message, Canvas, Label, Listbox, Scrollbar, IntVar, \
+    RIGHT, X, Y, END, BOTTOM, HORIZONTAL, VERTICAL, Entry, Checkbutton, OptionMenu, Toplevel, filedialog, StringVar
+from tkinter.scrolledtext import ScrolledText
 from KeywordSearch import *
 from Functions import *
 from Preperation import *
@@ -17,6 +18,7 @@ class Page(Frame):
         Frame.__init__(self, *args, **kwargs)
     def show(self):
         self.lift()
+
 # Background of the application
 def backgroundSet(self):
     self.canvas = Canvas(self)
@@ -24,47 +26,66 @@ def backgroundSet(self):
     self.background_label.place(relwidth=1, relheight=1)
     self.canvas.pack()
 
+# Using global variables for saving selected folder from File Explorer
+selectedFolderInputFiles = ''
+errorTextFolderSelect = ''
+
+def inputFolderDialog():
+    global selectedFolderInputFiles
+    global errorTextFolderSelect
+    try:
+        # Ask for directory with input files
+        selectedFolderInputFiles = filedialog.askdirectory()
+    except FileNotFoundError:
+        errorTextFolderSelect = "The system cannot find the path specified."
+
 # Popup message with result from page 1
 # Gets the selected folder by the user and uses keywordSearch in txt files, then presents categories and file names
 # Sentiment analysis of the output sub-directories and saving the result in excel
-def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename):
+def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename, selectedFolderInputFiles, errorTextFolderSelect, checkVarAppend):
     print("Language value " + str(selectLanguageVar))
     print("Check value " + str(checkVar))
+    print("Check value Append " + str(checkVarAppend))
     print("Entry excel name " + str(entryContentExcelFilename))
-    errorText = ""
+    print("Input folder " + str(selectedFolderInputFiles))
+    errorText = errorTextFolderSelect
     amountOfFiles = 0
     mapCategorizedFiles = {}
     messageSavingExcelFile = ""
     noExcel = True
+    noAppend = True
     judgementList = []
     try:
         # Ask for directory with input files
-        folderSelected = filedialog.askdirectory()
-        categorizer = Categorizer(folderSelected)
+        categorizer = Categorizer()
         # Amount of analyzed Emails
-        amountOfFiles = categorizer.amountOfFiles(folderSelected)
+        amountOfFiles = categorizer.amountOfFiles(selectedFolderInputFiles)
         # Map of categories with their emails
-        mapCategorizedFiles = categorizer.categorizeFilesFromDirectoryInMapAndSubDirectory()
+        mapCategorizedFiles = categorizer.categorizeFilesFromDirectoryInMapAndSubDirectory(selectedFolderInputFiles)
         # Preparation of Sentiment analysis
         if (selectLanguageVar == 'Swedish'):
             prepareAnalysis(True)
         else:
             prepareAnalysis(False)
-        # Start of Sentiment analysis
-        if(checkVar==1 and entryContentExcelFilename != ''):
+        # Start of Sentiment analysis and print the result as well as save it to a new excel file or to an existing one
+        if (checkVarAppend == 1 and entryContentExcelFilename != ''):
             noExcel = False
-            judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
+            noAppend = False
+            judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
+            messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is append to " + str(entryContentExcelFilename) + ".xlsx"
+        elif (checkVarAppend == 1 and entryContentExcelFilename == ''):
+            judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
+            messageSavingExcelFile = "Enter a name to the excel file which you would like to append the result."
+        elif(checkVar==1 and entryContentExcelFilename != ''):
+            noExcel = False
+            noAppend = True
+            judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
             messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is saved as " + str(entryContentExcelFilename) + ".xlsx"
-        elif (checkVar == 1 and entryContentExcelFilename == ''):
-            noExcel = False
-            judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
-            messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is saved as newTestfile.xlsx"
-        elif (checkVar == 0 and entryContentExcelFilename == ''):
-            judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
-            messageSavingExcelFile = "Please state a name of the new excel file in the entry field"
-        elif (checkVar == 0 and entryContentExcelFilename != ''):
-            judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
-            messageSavingExcelFile = "Please check the box for new excel file in the entry field"
+        elif(checkVar==1 and entryContentExcelFilename == ''):
+            judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
+            messageSavingExcelFile = "Enter a name to the new excel file."
+        elif (checkVar == 0 and checkVarAppend == 0):
+            judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
     except UnicodeDecodeError:
         errorText = "Selected folder does not contain txt files."
     except FileNotFoundError:
@@ -115,44 +136,68 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
                            + str(judgement[0]).ljust(15, ' ') + str(judgement[1]))
 
     # Button to close the popup window
-    buttonPopup = Button(popupWindowInputFiles, text="Okay", bd=4, command=popupWindowInputFiles.destroy)
-    buttonPopup.place(relx=0.4, rely=0.85, relwidth=0.2, relheight=0.15)
+    buttonPopup = Button(popupWindowInputFiles, text="OK", bd=5, command=popupWindowInputFiles.destroy)
+    buttonPopup.place(relx=0.45, rely=0.87, relwidth=0.15, relheight=0.10)
 
 # Popup message with result from Sentiment analysis of direct input by the user
 def popupWindowDirectInput(selectLanguageVar, entryString):
-    print(selectLanguageVar)
-    print(entryString)
-    # Preparation of Sentiment analysis of an entry by the user
-    if (selectLanguageVar == 'Swedish'):
-        translatedMessageList = translateEntryMessageToEnglish(entryString)
-        savePickle(translatedMessageList, "picklefiles_eng/translatedmessages.pickle")
-    else:
-        savePickle(entryString, "picklefiles_eng/messages.pickle")
-    # Start of Sentiment analysis of an entry by the user
-    print(sentiment(entryString, voted_classifier, word_features))
-    resultSentimentAndConfidence = sentiment(entryString, voted_classifier, word_features)
+    print("Language" + selectLanguageVar)
+    print("Entry " + entryString)
     # Popup message with result from Sentiment analysis of direct input by the user (displays positive, negative or neutral sentiment)
-    popupWindow = Toplevel()
-    popupWindow.wm_title("Result")
-    popupWindow.wm_geometry("500x400")
-    resultLabel = Label(popupWindow, font=(FontStyle, 16))
-    resultLabel.place(relx=0.32, rely=0.1, relwidth=0.35, relheight=0.15)
-    resultSentiment = StringVar()
-    if(str(resultSentimentAndConfidence[0]) == "pos"):
-        resultSentiment = "Positive"
-        resultLabel.configure(text=resultSentiment, fg='#00FF00')
-    elif (str(resultSentimentAndConfidence[0]) == "neg"):
-        resultSentiment = "Negative"
-        resultLabel.configure(text=resultSentiment, fg='#FF0000')
+    popupWindowDirectIput = Toplevel()
+    popupWindowDirectIput.wm_title("Result")
+    popupWindowDirectIput.wm_geometry("800x450")
+    # container with results from Sentiment analysis of the given direct input
+    results = Listbox(popupWindowDirectIput, font=("Courier", 12), bg='white', fg='#3C1E5F', justify='center', bd=3)
+    results.place(rely=0.2, relwidth=1, relheight=0.65)
+    scrollbar_vertical = Scrollbar(results, orient=VERTICAL)
+    scrollbar_vertical.pack(side=RIGHT, fill=Y)
+    scrollbar_vertical.configure(command=results.yview)
+    scrollbar_horizontal = Scrollbar(results, orient=HORIZONTAL)
+    scrollbar_horizontal.pack(side=BOTTOM, fill=X)
+    scrollbar_horizontal.configure(command=results.xview)
+    results.configure(yscrollcommand=scrollbar_vertical.set)
+    results.configure(xscrollcommand=scrollbar_horizontal.set)
+    # Check if the direct input by the user is empty
+    if(str(entryString) != ''):
+        # Preparation of Sentiment analysis of an entry by the user
+        if (selectLanguageVar == 'Swedish'):
+            translatedMessageList = translateEntryMessageToEnglish(entryString)
+            savePickle(translatedMessageList, "picklefiles_eng/translatedmessages.pickle")
+        else:
+            savePickle(entryString, "picklefiles_eng/messages.pickle")
+        # Start of Sentiment analysis of an entry by the user
+        resultSentimentAndConfidence = sentiment(entryString, voted_classifier, word_features)
+        print(resultSentimentAndConfidence)
+        resultSentiment = StringVar()
+        if(str(resultSentimentAndConfidence[0]) == "pos"):
+            resultSentiment = "Positive"
+            colorResultDirectInput = "#00FF00"
+        elif (str(resultSentimentAndConfidence[0]) == "neg"):
+            results = "Negative"
+            colorResultDirectInput = "#FF0000"
+        else:
+            resultSentiment = "Neutral"
+            colorResultDirectInput = "#0000ff"
+        # displays positive, negative or neutral sentiment
+        popupLabel = Label(popupWindowDirectIput, text=resultSentiment, font=(FontStyle, 20), justify='center', fg=colorResultDirectInput)
+        popupLabel.place(relx=0.31, rely=0.05, relwidth=0.4, relheight=0.1)
+
+        # printing the result
+        results.insert(END, "\n")
+        results.insert(END, "\n")
+        results.insert(END, " Your entry:")
+        results.insert(END, "\"" + entryString + "\"")
+        results.insert(END, "has")
+        results.insert(END, resultSentiment)
+        results.insert(END, "Sentiment and Confidence")
+        results.insert(END, str(resultSentimentAndConfidence[1]))
     else:
-        resultSentiment = "Neutral"
-        resultLabel.configure(text=resultSentiment, fg='#808080')
-    resultMessage = "Your entry \"" + entryString + "\" has " + resultSentiment + " Sentiment and Confidence " + str(resultSentimentAndConfidence[1])
-    infoMessage = Message(popupWindow, text=str(resultMessage), font=(FontStyle, 14), justify='center', aspect=150)
-    infoMessage.place(relx=0.05, rely=0.2, relwidth=0.9, relheight=0.5)
+        print("entryString"+entryString)
+        results.insert(END, "Please enter the text you want to be analysed and then select Analyse-button.")
     # Button to close the popup window
-    buttonPopup = Button(popupWindow, text="Okay", bd=4, command=popupWindow.destroy)
-    buttonPopup.place(relx=0.4, rely=0.75, relwidth=0.2, relheight=0.15)
+    buttonPopup = Button(popupWindowDirectIput, text="OK", bd=5, command=popupWindowDirectIput.destroy)
+    buttonPopup.place(relx=0.43, rely=0.87, relwidth=0.15, relheight=0.10)
 
 # First page with main information about the application
 class Page1(Page):
@@ -179,7 +224,7 @@ class Page1(Page):
        infoMessagePage1.insert(END, "\n")
        infoMessagePage1.insert(END, "This program has the following abilities: \n")
        infoMessagePage1.insert(END, "\n")
-       infoMessagePage1.insert(END, "- \"Options\" menu does Categorization and Sentiment analysis on text files in \n")
+       infoMessagePage1.insert(END, "- \"Email Analysis\" menu does Categorization and Sentiment analysis on text files in \n")
        infoMessagePage1.insert(END, "\t Swedish or English from a given input folder, \n")
        infoMessagePage1.insert(END, "\t presents the results and saves them in excel file \n\n")
        infoMessagePage1.insert(END, "- \"Direct Input\" does Sentiment analysis on direct input in Swedish or English")
@@ -199,7 +244,7 @@ class Page2(Page):
        lower_frame.grid_rowconfigure(0, weight=1)
        lower_frame.grid_columnconfigure(0, weight=1)
        optionCanvas = Canvas(lower_frame, bg='white', bd=3)
-       optionCanvas.place(relwidth=1, relheight=1)
+       optionCanvas.place(relwidth=1, relheight=0.85)
 
        # select language (English or Swedish)
        selectLanguageVar = StringVar()
@@ -211,28 +256,40 @@ class Page2(Page):
        popupLabel = Label(optionCanvas, text="Choose a language", font=(FontStyle, 12), bg='white')
        popupLabel.place(relx=0.1, rely=0.01, relwidth=0.3, relheight=0.2)
        popupMenu.configure(bd=3, bg='#EE7C7D')
-       popupMenu.place(relx=0.5, rely=0.01, relwidth=0.3, relheight=0.15)
+       popupMenu.place(relx=0.5, rely=0.01, relwidth=0.3, relheight=0.18)
 
        # save result in excel file
        checkVar = IntVar(value=1)
+       checkVarAppend = IntVar()
        excelFileCheckbutton = Checkbutton(optionCanvas, text="Save as excel", variable=checkVar, onvalue=1,
                                           offvalue=0, bg='white', font=(FontStyle, 12), height=5, width=20)
-       excelFileCheckbutton.place(relx=0.1, rely=0.35, relwidth=0.3, relheight=0.15)
+       excelFileCheckbutton.place(relx=0.05, rely=0.35, relwidth=0.3, relheight=0.15)
+       excelFileAppendCheckbutton = Checkbutton(optionCanvas, text="Append to existing excel", variable=checkVarAppend,
+                                        onvalue=1, offvalue=0, bg='white', font=(FontStyle, 12), height=5, width=20)
+       excelFileAppendCheckbutton.place(relx=0.097, rely=0.55, relwidth=0.3, relheight=0.15)
        entryLabel = Label(optionCanvas, text="Enter name of the excel", bg='white', font=(FontStyle, 12))
        entryLabel.place(relx=0.4, rely=0.38, relwidth=0.25, relheight=0.1)
        entryContentExcelFilename = Entry(lower_frame, font=(FontStyle, 12,), justify='left', bd=3)
        timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H%M%S')
        timestamp = str(timestamp)
-       entryContentExcelFilename.insert(END, 'OutputFile'+timestamp)
-       entryContentExcelFilename.place(relx=0.7, rely=0.38, relwidth=0.25, relheight=0.1)
+       entryContentExcelFilename.insert(END, 'OutputFile ' + timestamp)
+       entryContentExcelFilename.place(relx=0.7, rely=0.32, relwidth=0.25, relheight=0.1)
 
        # open folder with input files
        openFolder = Label(optionCanvas, text="Open a folder with input files", justify='left',
                           bg='white', font=(FontStyle, 12))
        openFolder.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
+
        buttonOpenFolder = Button(optionCanvas, text="Browse", font=(FontStyle, 12), bg='#EE7C7D', highlightcolor='#d65859', activebackground='#f2d9e6',
-                                 command=lambda: popupWindowInputFiles(selectLanguageVar.get(), checkVar.get(), entryContentExcelFilename.get()))
+                                 command=lambda: inputFolderDialog())
        buttonOpenFolder.place(relx=0.5, rely=0.7, relwidth=0.3, relheight=0.15)
+
+       buttonAnalyzeInput = Button(lower_frame, text="Analyze", font=(FontStyle, 12), bg='#b3b3b3',
+                                   activebackground='#f2d9e6',
+                                   command=lambda: popupWindowInputFiles(selectLanguageVar.get(), checkVar.get(),
+                                                                         entryContentExcelFilename.get(), selectedFolderInputFiles,
+                                                                         errorTextFolderSelect, checkVarAppend.get()))
+       buttonAnalyzeInput.place(relx=0.4, rely=0.89, relwidth=0.2, relheight=0.1)
 
 # Page with entry field for direct input and changing between Swedish and English
 class Page3(Page):
@@ -257,12 +314,13 @@ class Page3(Page):
        popupMenu.place(relx=0.5, rely=0.01, relwidth=0.3, relheight=0.15)
 
        # Entry text box
-       entryLabel = Label(lower_frame, text="Enter text", bg='#FFD164', font=(FontStyle, 12))
-       entryLabel.place(relx=0.37, rely=0.2, relwidth=0.25, relheight=0.1)
-       entryContent = Entry(lower_frame, font=(FontStyle, 12,), justify='center')
-       entryContent.place(relx=0, rely=0.3, relwidth=1, relheight=0.55)
+       entryTextLabel = Label(lower_frame, text="Enter text", bg='#FFD164', font=(FontStyle, 12))
+       entryTextLabel.place(relx=0.37, rely=0.2, relwidth=0.25, relheight=0.1)
+       entryTextContent = ScrolledText(lower_frame, font=(FontStyle, 12))
+       entryTextContent.place(relx=0, rely=0.3, relwidth=1, relheight=0.55)
        buttonAnalyzeInput = Button(lower_frame, text="Analyze", font=(FontStyle, 12), bg='#b3b3b3',
-                       activebackground='#f2d9e6', command=lambda: popupWindowDirectInput(selectLanguageVar.get(), entryContent.get()))
+                       activebackground='#f2d9e6', command=lambda: popupWindowDirectInput(selectLanguageVar.get(),
+                                                                                          entryTextContent.get("1.0",END)))
        buttonAnalyzeInput.place(relx=0.4, rely=0.89, relwidth=0.2, relheight=0.1)
 
 # Main view of the application with logo, info-box, button-bar and container for switching between the three pages
@@ -277,7 +335,7 @@ class MainView(Frame):
         menu_frame.place(relx=0, rely=0, relwidth=1, relheight=0.2)
         #logo
         self.logo = Canvas(menu_frame, bd=1)
-        self.logo.place(relx=0, rely=0, relwidth=1, relheight=0.8)
+        self.logo.place(relx=0, rely=0, relwidth=1, relheight=1)
         self.img = PhotoImage(file="logo.png")
         self.img = self.img.subsample(6)
         self.logo.create_image(0, 0, anchor='nw', image=self.img)
@@ -286,19 +344,19 @@ class MainView(Frame):
                                    font=(FontStyle, 16))
         infoMessage.place(relx=0.4, rely=0.1, relwidth=0.4, relheight=0.5)
         button_frame = Frame(self, bg='#FFD164', bd=5)
-        button_frame.place(relx=0, rely=0.135, relwidth=1, relheight=0.3)
+        button_frame.place(relx=0, rely=0.135, relwidth=1, relheight=0.2)
         button1 = Button(button_frame, text="Information", font=(FontStyle, 14), bg='#EE7C7D',
                          activebackground='#f2d9e6',
                          command=p1.lift)
-        button1.place(relx=0.1, rely=0.25, relwidth=0.2, relheight=0.2)
-        button2 = Button(button_frame, text="Options", font=(FontStyle, 14), bg='#EE7C7D',
+        button1.place(relx=0.1, rely=0.25, relwidth=0.2, relheight=0.35)
+        button2 = Button(button_frame, text="Email Analysis", font=(FontStyle, 14), bg='#EE7C7D',
                          activebackground='#f2d9e6',
                          command=p2.lift)
-        button2.place(relx=0.4, rely=0.25, relwidth=0.2, relheight=0.2)
+        button2.place(relx=0.4, rely=0.25, relwidth=0.2, relheight=0.35)
         button3 = Button(button_frame, text="Direct input", font=(FontStyle, 14), bg='#EE7C7D',
                          activebackground='#f2d9e6',
                          command=p3.lift)
-        button3.place(relx=0.7, rely=0.25, relwidth=0.2, relheight=0.2)
+        button3.place(relx=0.7, rely=0.25, relwidth=0.2, relheight=0.35)
 
         container = Frame(self)
         container.place(relx=0, rely=0.3, relwidth=1, relheight=0.7)
@@ -307,7 +365,7 @@ class MainView(Frame):
         p2.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
         p3.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
 
-
+        # shows the first page
         p1.show()
 
 # Start of the application
