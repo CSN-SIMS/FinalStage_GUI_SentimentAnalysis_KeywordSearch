@@ -310,7 +310,7 @@ class MainView(Frame):
                          activebackground='#f2d9e6',
                          command=p1.lift)
         button1.place(relx=0.1, rely=0.25, relwidth=0.2, relheight=0.2)
-        button2 = Button(button_frame, text="Options", font=(FontStyle, 14), bg='#EE7C7D',
+        button2 = Button(button_frame, text="E-mail analysis", font=(FontStyle, 14), bg='#EE7C7D',
                          activebackground='#f2d9e6',
                          command=p2.lift)
         button2.place(relx=0.4, rely=0.25, relwidth=0.2, relheight=0.2)
