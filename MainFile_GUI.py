@@ -214,7 +214,7 @@ class Page2(Page):
        popupMenu.place(relx=0.5, rely=0.01, relwidth=0.3, relheight=0.15)
 
        # save result in excel file
-       checkVar = IntVar()
+       checkVar = IntVar(value=1)
        excelFileCheckbutton = Checkbutton(optionCanvas, text="Save as excel", variable=checkVar, onvalue=1,
                                           offvalue=0, bg='white', font=(FontStyle, 12), height=5, width=20)
        excelFileCheckbutton.place(relx=0.1, rely=0.35, relwidth=0.3, relheight=0.15)
