@@ -55,11 +55,11 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
             noExcel = False
             judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
             messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is saved as " + str(entryContentExcelFilename) + ".xlsx"
-        elif (checkVar == 0 and entryContentExcelFilename == ''):
+        elif (checkVar == 1 and entryContentExcelFilename == ''):
             noExcel = False
             judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
             messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is saved as newTestfile.xlsx"
-        elif (checkVar == 1 and entryContentExcelFilename == ''):
+        elif (checkVar == 0 and entryContentExcelFilename == ''):
             judgementList = startAnalysis(checkVar, entryContentExcelFilename, noExcel)
             messageSavingExcelFile = "Please state a name of the new excel file in the entry field"
         elif (checkVar == 0 and entryContentExcelFilename != ''):
@@ -221,6 +221,7 @@ class Page2(Page):
        entryLabel = Label(optionCanvas, text="Enter name of the excel", bg='white', font=(FontStyle, 12))
        entryLabel.place(relx=0.4, rely=0.38, relwidth=0.25, relheight=0.1)
        entryContentExcelFilename = Entry(lower_frame, font=(FontStyle, 12,), justify='left', bd=3)
+       entryContentExcelFilename.insert(END, 'newTestfile')
        entryContentExcelFilename.place(relx=0.7, rely=0.38, relwidth=0.25, relheight=0.1)
 
        # open folder with input files
