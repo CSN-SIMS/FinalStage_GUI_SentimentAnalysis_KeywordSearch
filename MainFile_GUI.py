@@ -221,7 +221,9 @@ class Page2(Page):
        entryLabel = Label(optionCanvas, text="Enter name of the excel", bg='white', font=(FontStyle, 12))
        entryLabel.place(relx=0.4, rely=0.38, relwidth=0.25, relheight=0.1)
        entryContentExcelFilename = Entry(lower_frame, font=(FontStyle, 12,), justify='left', bd=3)
-       entryContentExcelFilename.insert(END, 'newTestfile')
+       timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H%M%S')
+       timestamp = str(timestamp)
+       entryContentExcelFilename.insert(END, 'OutputFile'+timestamp)
        entryContentExcelFilename.place(relx=0.7, rely=0.38, relwidth=0.25, relheight=0.1)
 
        # open folder with input files

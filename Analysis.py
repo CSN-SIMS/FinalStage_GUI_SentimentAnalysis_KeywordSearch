@@ -1,6 +1,7 @@
 #Lukas and Jenjira
 
 from Functions import *
+import datetime, time
 #Att göra: Skapa ett relativt enkelt sätt att byta mellan svenska och engelska och ändra andra inställningar (GUI).
 #Lägg till neutral klassifiering när testning är klar, Motverka neg klassifiering av texter som är neutrala,
 #Error hantering när t.ex nätverket är frånkopplat för översättning.
@@ -31,13 +32,19 @@ voted_classifier = VoteClassifier(classifier,
 #print("voted_classifier accuracy percent:", (nltk.classify.accuracy(voted_classifier, testing_set)) * 100)
 
 def startAnalysis(newFile, excelFilename, noExcel):
+    #create timestamp
+    timestamp = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
+    excelnameTimestamp = "AnalysisOutput.xlsx"
+
+
     translatedMessageList = loadPickleFile("picklefiles_eng/translatedmessages.pickle")
     judgementList = analyseListOfMessages(translatedMessageList, word_features, voted_classifier)
     percentages = calculatePercentagesOfList(judgementList)
     if(noExcel == False):
         if(newFile):
-            saveToNewExcelfile(judgementList, "Sheetname", percentages, excelFilename + ".xlsx")
+            saveToNewExcelfile(judgementList, "Sheetname", percentages, excelFilename  + ".xlsx")
         else:
-            saveExcelFormat(judgementList, "Sheetname", percentages, "newTestfile.xlsx", append=True)
+            print("excelnameTimestamp: "+excelnameTimestamp)
+            saveExcelFormat(judgementList, "Sheetname", percentages, excelnameTimestamp, append=True)
     print("Done")
     return judgementList
