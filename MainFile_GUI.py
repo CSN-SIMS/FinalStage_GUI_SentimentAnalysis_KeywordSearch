@@ -264,9 +264,9 @@ class Page2(Page):
        excelFileCheckbutton = Checkbutton(optionCanvas, text="Save as excel", variable=checkVar, onvalue=1,
                                           offvalue=0, bg='white', font=(FontStyle, 12), height=5, width=20)
        excelFileCheckbutton.place(relx=0.05, rely=0.35, relwidth=0.3, relheight=0.15)
-       excelFileAppendCheckbutton = Checkbutton(optionCanvas, text="Append to existing excel", variable=checkVarAppend,
+       excelFileAppendCheckbutton = Checkbutton(optionCanvas, text="Append to existing excel on Desktop", variable=checkVarAppend,
                                         onvalue=1, offvalue=0, bg='white', font=(FontStyle, 12), height=5, width=20)
-       excelFileAppendCheckbutton.place(relx=0.097, rely=0.55, relwidth=0.3, relheight=0.15)
+       excelFileAppendCheckbutton.place(relx=0.077, rely=0.55, relwidth=0.45, relheight=0.15)
        entryLabel = Label(optionCanvas, text="Enter name of the excel", bg='white', font=(FontStyle, 12))
        entryLabel.place(relx=0.4, rely=0.38, relwidth=0.25, relheight=0.1)
        entryContentExcelFilename = Entry(lower_frame, font=(FontStyle, 12,), justify='left', bd=3)

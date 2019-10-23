@@ -101,8 +101,8 @@ def saveExcelFormat(judgementList, sheetname, percentages, filename, append = Fa
             ws.cell(y, 3, judgement[0])
             ws.cell(y, 4, judgement[1])
             y += 1
-
-        wb.save(filename)
+        pathToDesktop = getPathToDesktop()
+        wb.save(pathToDesktop + '/' + filename)
         for i in range(2,ws.max_row+1):
             cellObj = (ws.cell(row=i, column=3))
             sentimentList.append(cellObj.value)
@@ -112,7 +112,7 @@ def saveExcelFormat(judgementList, sheetname, percentages, filename, append = Fa
             ws.cell(y,5, percentages[y-1][0] + " " + str(percentages[y-1][1]) + "%")
             y +=1
 
-        wb.save(filename)
+        wb.save(pathToDesktop + '/' + filename)
 
     else:
         wb = load_workbook(filename)
@@ -132,7 +132,8 @@ def saveExcelFormat(judgementList, sheetname, percentages, filename, append = Fa
             ws.cell(y,3, judgement[0])
             ws.cell(y,4, judgement[1] * 100)
             y +=1
-        wb.save(filename)
+        pathToDesktop = getPathToDesktop()
+        wb.save(pathToDesktop + '/' + filename)
 
 
 def calculatePercentagesOfList(judgementList):
