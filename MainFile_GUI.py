@@ -72,7 +72,7 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
             noExcel = False
             noAppend = False
             judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
-            messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is append to " + str(entryContentExcelFilename) + ".xlsx"
+            messageSavingExcelFile = "The result is append to " + str(entryContentExcelFilename) + ".xlsx on Desktop"
         elif (checkVarAppend == 1 and entryContentExcelFilename == ''):
             judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
             messageSavingExcelFile = "Enter a name to the excel file which you would like to append the result."
@@ -80,7 +80,7 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
             noExcel = False
             noAppend = True
             judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
-            messageSavingExcelFile = "The result of Sentiment analysis and categorization " + "\n" + " is saved as " + str(entryContentExcelFilename) + ".xlsx"
+            messageSavingExcelFile = "The result is saved as " + str(entryContentExcelFilename) + ".xlsx on Desktop"
         elif(checkVar==1 and entryContentExcelFilename == ''):
             judgementList = startAnalysis(entryContentExcelFilename, noExcel, noAppend)
             messageSavingExcelFile = "Enter a name to the new excel file."
@@ -128,7 +128,7 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
         results.insert(END, "\n")
 
         # Shows the result from judgementList with Filename, Category, Judgement from Sentiment analysis in %, Confidence
-        results.insert(END, "Below is the result: \n")
+        results.insert(END, "The categorization and sentiment analysis shows: \n")
         results.insert(END, "Filename".ljust(30, ' ') + "Category".ljust(20, ' ')
                        + "Judgement %".ljust(15, ' ') + "Confidence")
         for fn, judgement in judgementList:
