@@ -1,5 +1,6 @@
 # Rosen
 # GUI with functionality connecting the two parts of the program - keyword-search Categorization and Sentiment Analysis
+# Tkinter is free software released under a Python license.
 
 from tkinter import Tk, Button, Frame, PhotoImage, Message, Canvas, Label, Listbox, Scrollbar, IntVar, \
     RIGHT, X, Y, END, BOTTOM, HORIZONTAL, VERTICAL, Entry, Checkbutton, OptionMenu, Toplevel, filedialog, StringVar
@@ -164,10 +165,7 @@ def popupWindowDirectInput(selectLanguageVar, entryString):
     if(str(entryString) != ''):
         # Preparation of Sentiment analysis of an entry by the user
         if (selectLanguageVar == 'Swedish'):
-            translatedMessageList = translateEntryMessageToEnglish(entryString)
-            savePickle(translatedMessageList, "picklefiles_eng/translatedmessages.pickle")
-        else:
-            savePickle(entryString, "picklefiles_eng/messages.pickle")
+            entryString = translateSingleMessageToEng(entryString)
         # Start of Sentiment analysis of an entry by the user
         resultSentimentAndConfidence = sentiment(entryString, voted_classifier, word_features)
         print(resultSentimentAndConfidence)
@@ -189,7 +187,8 @@ def popupWindowDirectInput(selectLanguageVar, entryString):
         results.insert(END, "\n")
         results.insert(END, "\n")
         results.insert(END, " Your entry:")
-        results.insert(END, "\"" + entryString + "\"")
+        if(len(entryString) < 100):
+            results.insert(END, "\"" + entryString + "\"")
         results.insert(END, "has")
         results.insert(END, resultSentiment)
         results.insert(END, "Sentiment and Confidence")
@@ -286,12 +285,22 @@ class Page2(Page):
                                  command=lambda: inputFolderDialog())
        buttonOpenFolder.place(relx=0.5, rely=0.7, relwidth=0.3, relheight=0.15)
 
+       selectedFolderLabel = Label(optionCanvas, text="", justify='left', bg='white', font=(FontStyle, 12))
+       selectedFolderLabel.place(relx=0.42, rely=0.85, relwidth=0.4, relheight=0.2)
+
        buttonAnalyzeInput = Button(lower_frame, text="Analyze", font=(FontStyle, 12), bg='#b3b3b3',
                                    activebackground='#f2d9e6',
                                    command=lambda: popupWindowInputFiles(selectLanguageVar.get(), checkVar.get(),
                                                                          entryContentExcelFilename.get(), selectedFolderInputFiles,
                                                                          errorTextFolderSelect, checkVarAppend.get()))
        buttonAnalyzeInput.place(relx=0.4, rely=0.89, relwidth=0.2, relheight=0.1)
+
+        # displays if button Analyze is click and present the selected input folder to the user
+       def buttonAnalyzeInputClick(event):
+           global selectedFolderInputFiles
+           folder = selectedFolderInputFiles.split("/")
+           selectedFolderLabel.configure(text="Folder selected: " + folder[-1])
+       buttonAnalyzeInput.bind("<Button-1>", buttonAnalyzeInputClick)
 
 # Page with entry field for direct input and changing between Swedish and English
 class Page3(Page):
