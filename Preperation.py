@@ -2,47 +2,48 @@ from PrepFunctions import *
 
 swe = True
 
-featuresets = loadDatasetFromSingleFiles("positive.txt", "negative.txt")
-training_set = featuresets[:50]
-testing_set = featuresets[50:50]
-print("Lenght of trainingset:", len(training_set))
-print("Lenght of testingset:", len(testing_set))
-savePickle(training_set, "picklefiles_eng/trainingset.pickle")
-savePickle(testing_set, "picklefiles_eng/testingset.pickle")
+def checkPicklefiles():
+    featuresets = loadDatasetFromSingleFiles("positive.txt", "negative.txt")
+    training_set = featuresets[:50]
+    testing_set = featuresets[50:]
+    print("Lenght of trainingset:", len(training_set))
+    print("Lenght of testingset:", len(testing_set))
+    savePickle(training_set, "picklefiles_eng/trainingset.pickle")
+    savePickle(testing_set, "picklefiles_eng/testingset.pickle")
 
-classifier = nltk.NaiveBayesClassifier.train(training_set)
-savePickle(classifier, "picklefiles_eng/basicClassifier.pickle")
-print("Basic classifier saved")
+    classifier = nltk.NaiveBayesClassifier.train(training_set)
+    savePickle(classifier, "picklefiles_eng/basicClassifier.pickle")
+    print("Basic classifier saved")
 
-MNB_classifier = SklearnClassifier(MultinomialNB())
-MNB_classifier.train(training_set)
-savePickle(MNB_classifier, "picklefiles_eng/MNBClassifier.pickle")
-print("MNB classifier saved")
+    MNB_classifier = SklearnClassifier(MultinomialNB())
+    MNB_classifier.train(training_set)
+    savePickle(MNB_classifier, "picklefiles_eng/MNBClassifier.pickle")
+    print("MNB classifier saved")
 
-BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
-BernoulliNB_classifier.train(training_set)
-savePickle(BernoulliNB_classifier, "picklefiles_eng/BNBClassifier.pickle")
-print("BNB classifier saved")
+    BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
+    BernoulliNB_classifier.train(training_set)
+    savePickle(BernoulliNB_classifier, "picklefiles_eng/BNBClassifier.pickle")
+    print("BNB classifier saved")
 
-LogisticRegression_classifier = SklearnClassifier(LogisticRegression(solver='liblinear'))
-LogisticRegression_classifier.train(training_set)
-savePickle(LogisticRegression_classifier, "picklefiles_eng/LRClassifier.pickle")
-print("LRC classifier saved")
+    LogisticRegression_classifier = SklearnClassifier(LogisticRegression(solver='liblinear'))
+    LogisticRegression_classifier.train(training_set)
+    savePickle(LogisticRegression_classifier, "picklefiles_eng/LRClassifier.pickle")
+    print("LRC classifier saved")
 
-SGDClassifier_classifier = SklearnClassifier(SGDClassifier())
-SGDClassifier_classifier.train(training_set)
-savePickle(SGDClassifier_classifier, "picklefiles_eng/SGDClassifier.pickle")
-print("SGD classifier saved")
+    SGDClassifier_classifier = SklearnClassifier(SGDClassifier())
+    SGDClassifier_classifier.train(training_set)
+    savePickle(SGDClassifier_classifier, "picklefiles_eng/SGDClassifier.pickle")
+    print("SGD classifier saved")
 
-LinearSVC_classifier = SklearnClassifier(LinearSVC(max_iter=10000))
-LinearSVC_classifier.train(training_set)
-savePickle(LinearSVC_classifier, "picklefiles_eng/LinearSVCClassifier.pickle")
-print("LinearSVC classifier saved")
+    LinearSVC_classifier = SklearnClassifier(LinearSVC(max_iter=10000))
+    LinearSVC_classifier.train(training_set)
+    savePickle(LinearSVC_classifier, "picklefiles_eng/LinearSVCClassifier.pickle")
+    print("LinearSVC classifier saved")
 
-NuSVC_classifier = SklearnClassifier(NuSVC(gamma='auto'))
-NuSVC_classifier.train(training_set)
-savePickle(NuSVC_classifier, "picklefiles_eng/NUSVCClassifier.pickle")
-print("NuSVC classifier saved")
+    NuSVC_classifier = SklearnClassifier(NuSVC(gamma='auto'))
+    NuSVC_classifier.train(training_set)
+    savePickle(NuSVC_classifier, "picklefiles_eng/NUSVCClassifier.pickle")
+    print("NuSVC classifier saved")
 
 """
 #print("Basic classifier accuracy percent:", (nltk.classify.accuracy(classifier, testing_set))*100)

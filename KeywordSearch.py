@@ -13,7 +13,7 @@ from shutil import copyfile
 # Results are saved into key-value Map called dictionary
 # Input emails are also  into sub-directories based on the result categories
 class Categorizer:
-    def __init__(self, directory_Inputfiles):
+    def __init__(self):
         # list of keywords for every category
         self.listCategories = ["Studiemedel", "Studieresultat", "Inkomst", "Återbetalning", "Väntetid", "Studieförsäkran", "Okategoriserad"]
         self.listKeywordsStudyAids = ["Lån", "Betalning", "Betalningar", "Bidrag", "Pengar", "Studiemedel", "Ansöka", "Villkor", "Lånevillkor"
@@ -27,11 +27,6 @@ class Categorizer:
 
         # Key, value map dictionary with categories and files, every key has an array-value
         self.dict_obj = {}
-        # key = email.name || value = categoryType
-        self.listOfEmails = {}
-
-        # directory that contains txt files
-        self.directory_Inputfiles = directory_Inputfiles
 
     # reads file and searches for keywords and counts their occurrences
     # returns total number of occurrences
@@ -54,10 +49,11 @@ class Categorizer:
 
     # counts occurrences of keywords in files from a given directory and then categorize them
     # into different sub-directory for every category and save the result in a map
-    def categorizeFilesFromDirectoryInMapAndSubDirectory(self):
-        directoryCheck(self.directory_Inputfiles)
-        for filename in listdir(self.directory_Inputfiles):
-            pathToInputFile = pathToFileCreating(self.directory_Inputfiles, filename)
+    def categorizeFilesFromDirectoryInMapAndSubDirectory(self, directory_Inputfiles):
+        # directory that contains txt files
+        directoryCheck(directory_Inputfiles)
+        for filename in listdir(directory_Inputfiles):
+            pathToInputFile = pathToFileCreating(directory_Inputfiles, filename)
             # print("Occurrences of keywords in the file " + filename + " are: ")
             # search for keywords of the different categories in the file
             totalOccurrencesStudyAids = Categorizer.keywordSearch(self, pathToInputFile, self.listKeywordsStudyAids)

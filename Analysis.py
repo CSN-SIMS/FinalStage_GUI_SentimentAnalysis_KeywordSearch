@@ -31,20 +31,14 @@ voted_classifier = VoteClassifier(classifier,
                                       LogisticRegression_classifier)
 #print("voted_classifier accuracy percent:", (nltk.classify.accuracy(voted_classifier, testing_set)) * 100)
 
-def startAnalysis(newFile, excelFilename, noExcel):
-    #create timestamp
-    timestamp = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
-    excelnameTimestamp = "AnalysisOutput.xlsx"
-
-
+def startAnalysis(excelFilename, noExcel, noAppend):
     translatedMessageList = loadPickleFile("picklefiles_eng/translatedmessages.pickle")
     judgementList = analyseListOfMessages(translatedMessageList, word_features, voted_classifier)
     percentages = calculatePercentagesOfList(judgementList)
     if(noExcel == False):
-        if(newFile):
-            saveToNewExcelfile(judgementList, "Sheetname", percentages, excelFilename  + ".xlsx")
+        if(noAppend):
+            saveToNewExcelfile(judgementList, "Sheetname", percentages, excelFilename + ".xlsx")
         else:
-            print("excelnameTimestamp: "+excelnameTimestamp)
-            saveExcelFormat(judgementList, "Sheetname", percentages, excelnameTimestamp, append=True)
+            saveExcelFormat(judgementList, "Sheetname", percentages, excelFilename + ".xlsx", append=True)
     print("Done")
     return judgementList

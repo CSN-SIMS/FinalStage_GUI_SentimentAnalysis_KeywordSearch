@@ -155,5 +155,16 @@ def loadMultipleDirectoriesToOneList(parentDirectory):
             returnList += loadTextfilesToList(pathToDir)
     return returnList
 
-
-
+#Remember to update when new required picklefiles are added, are moved or have their names changed
+def checkPicklefiles():
+  requiredFiles = ["basicClassifier.pickle", "BNBClassifier.pickle", "documents.pickle", "features.pickle", "LinearSVCClassifier.pickle", "LRClassifier.pickle", "MNBClassifier.pickle", "NUSVCClassifier.pickle", "SGDClassifier.pickle", "trainingset.pickle", "word_features.pickle"]
+  currentFiles = []
+  files = os.listdir("picklefiles_eng")
+  for file in files:
+      if(file.endswith(".pickle")):
+          currentFiles.append(file)
+  if(set(requiredFiles).issubset(currentFiles)):
+      return True
+  else:
+      print("The dataset has to be reloaded due to missing files.")
+      return False
