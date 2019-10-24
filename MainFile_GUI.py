@@ -141,7 +141,7 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
 
 # Popup message with result from Sentiment analysis of direct input by the user
 def popupWindowDirectInput(selectLanguageVar, entryString):
-    print("Language" + selectLanguageVar)
+    print("Language " + selectLanguageVar)
     print("Entry " + entryString)
     # Popup message with result from Sentiment analysis of direct input by the user (displays positive, negative or neutral sentiment)
     popupWindowDirectIput = Toplevel()
@@ -149,6 +149,7 @@ def popupWindowDirectInput(selectLanguageVar, entryString):
     popupWindowDirectIput.wm_geometry("800x450")
     # container with results from Sentiment analysis of the given direct input
     results = Listbox(popupWindowDirectIput, font=("Courier", 12), bg='white', fg='#3C1E5F', justify='center', bd=3)
+    results.grid(column=1, row=1, padx=10, ipady=10)
     results.place(rely=0.2, relwidth=1, relheight=0.65)
     scrollbar_vertical = Scrollbar(results, orient=VERTICAL)
     scrollbar_vertical.pack(side=RIGHT, fill=Y)
@@ -158,6 +159,7 @@ def popupWindowDirectInput(selectLanguageVar, entryString):
     scrollbar_horizontal.configure(command=results.xview)
     results.configure(yscrollcommand=scrollbar_vertical.set)
     results.configure(xscrollcommand=scrollbar_horizontal.set)
+
     # Check if the direct input by the user is empty
     if(str(entryString) != ''):
         # Preparation of Sentiment analysis of an entry by the user
@@ -174,7 +176,7 @@ def popupWindowDirectInput(selectLanguageVar, entryString):
             resultSentiment = "Positive"
             colorResultDirectInput = "#00FF00"
         elif (str(resultSentimentAndConfidence[0]) == "neg"):
-            results = "Negative"
+            resultSentiment = "Negative"
             colorResultDirectInput = "#FF0000"
         else:
             resultSentiment = "Neutral"
@@ -318,9 +320,10 @@ class Page3(Page):
        entryTextLabel.place(relx=0.37, rely=0.2, relwidth=0.25, relheight=0.1)
        entryTextContent = ScrolledText(lower_frame, font=(FontStyle, 12))
        entryTextContent.place(relx=0, rely=0.3, relwidth=1, relheight=0.55)
+
        buttonAnalyzeInput = Button(lower_frame, text="Analyze", font=(FontStyle, 12), bg='#b3b3b3',
                        activebackground='#f2d9e6', command=lambda: popupWindowDirectInput(selectLanguageVar.get(),
-                                                                                          entryTextContent.get("1.0",END)))
+                                                                                          entryTextContent.get("1.0", "end-1c")))
        buttonAnalyzeInput.place(relx=0.4, rely=0.89, relwidth=0.2, relheight=0.1)
 
 # Main view of the application with logo, info-box, button-bar and container for switching between the three pages
@@ -349,7 +352,7 @@ class MainView(Frame):
                          activebackground='#f2d9e6',
                          command=p1.lift)
         button1.place(relx=0.1, rely=0.25, relwidth=0.2, relheight=0.35)
-        button2 = Button(button_frame, text="Email Analysis", font=(FontStyle, 14), bg='#EE7C7D',
+        button2 = Button(button_frame, text="Text Analysis", font=(FontStyle, 14), bg='#EE7C7D',
                          activebackground='#f2d9e6',
                          command=p2.lift)
         button2.place(relx=0.4, rely=0.25, relwidth=0.2, relheight=0.35)
