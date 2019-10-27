@@ -5,6 +5,7 @@
 from tkinter import Tk, Button, Frame, PhotoImage, Message, Canvas, Label, Listbox, Scrollbar, IntVar, \
     RIGHT, X, Y, END, BOTTOM, HORIZONTAL, VERTICAL, Entry, Checkbutton, OptionMenu, Toplevel, filedialog, StringVar
 from tkinter.scrolledtext import ScrolledText
+from tkinter.ttk import Progressbar
 from KeywordSearch import *
 from Functions import *
 from Preperation import *
@@ -295,11 +296,20 @@ class Page2(Page):
                                                                          errorTextFolderSelect, checkVarAppend.get()))
        buttonAnalyzeInput.place(relx=0.4, rely=0.89, relwidth=0.2, relheight=0.1)
 
-        # displays if button Analyze is click and present the selected input folder to the user
+
+        # when button Analyze is clicked display Loading Progress bar and present the selected input folder to the user
        def buttonAnalyzeInputClick(event):
            global selectedFolderInputFiles
            folder = selectedFolderInputFiles.split("/")
            selectedFolderLabel.configure(text="Folder selected: " + folder[-1])
+           popupWindowLoading = Toplevel()
+           popupWindowLoading.wm_title("Loading")
+           popupWindowLoading.wm_geometry("300x40")
+           progressbar = Progressbar(popupWindowLoading, orient=HORIZONTAL, length=200, mode='determinate')
+           progressbar.pack(side="top")
+           progressbar.start()
+           popupWindowLoading.after(3000, lambda: popupWindowLoading.destroy()) # Destroy the widget after 30 seconds
+
        buttonAnalyzeInput.bind("<Button-1>", buttonAnalyzeInputClick)
 
 # Page with entry field for direct input and changing between Swedish and English
