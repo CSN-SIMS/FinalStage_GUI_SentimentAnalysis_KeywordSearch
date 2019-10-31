@@ -66,7 +66,10 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
         mapCategorizedFiles = categorizer.categorizeFilesFromDirectoryInMapAndSubDirectory(selectedFolderInputFiles)
         # Preparation of Sentiment analysis
         if (selectLanguageVar == 'Swedish'):
-            prepareAnalysis(True)
+            try:
+                prepareAnalysis(True)
+            except:
+                errorText = "Problem occurred when translating the message."
         else:
             prepareAnalysis(False)
         # Start of Sentiment analysis and print the result as well as save it to a new excel file or to an existing one
@@ -111,7 +114,7 @@ def popupWindowInputFiles(selectLanguageVar, checkVar, entryContentExcelFilename
     # Shows if there is an error occurred when opening the input folder
     if(errorText != ""):
         results.insert(END, "Error occured: " + errorText)
-        results.insert(END, "Try again selecting an input folder with text files")
+        results.insert(END, "Try again.")
         results.insert(END, "\n")
     else:
         # Shows the amount of analyzed Emails
@@ -161,39 +164,49 @@ def popupWindowDirectInput(selectLanguageVar, entryString):
     scrollbar_horizontal.configure(command=results.xview)
     results.configure(yscrollcommand=scrollbar_vertical.set)
     results.configure(xscrollcommand=scrollbar_horizontal.set)
-
+    errorText = ''
     # Check if the direct input by the user is empty
     if(str(entryString) != ''):
         # Preparation of Sentiment analysis of an entry by the user
         if (selectLanguageVar == 'Swedish'):
-            entryString = translateSingleMessageToEng(entryString)
+            try:
+                entryString = translateSingleMessageToEng(entryString)
+            except:
+                errorText = "Problem occurred when translating the message."
         # Start of Sentiment analysis of an entry by the user
         resultSentimentAndConfidence = sentiment(entryString, voted_classifier, word_features)
         print(resultSentimentAndConfidence)
         resultSentiment = StringVar()
-        if(str(resultSentimentAndConfidence[0]) == "pos"):
-            resultSentiment = "Positive"
-            colorResultDirectInput = "#00FF00"
-        elif (str(resultSentimentAndConfidence[0]) == "neg"):
-            resultSentiment = "Negative"
-            colorResultDirectInput = "#FF0000"
+        # Shows if there is an error occurred when opening the input folder
+        if (errorText != ""):
+            results.insert(END, "Error occured: " + errorText)
+            results.insert(END, "Try again.")
+            results.insert(END, "\n")
         else:
-            resultSentiment = "Neutral"
-            colorResultDirectInput = "#0000ff"
-        # displays positive, negative or neutral sentiment
-        popupLabel = Label(popupWindowDirectIput, text=resultSentiment, font=(FontStyle, 20), justify='center', fg=colorResultDirectInput)
-        popupLabel.place(relx=0.31, rely=0.05, relwidth=0.4, relheight=0.1)
 
-        # printing the result
-        results.insert(END, "\n")
-        results.insert(END, "\n")
-        results.insert(END, " Your entry:")
-        if(len(entryString) < 100):
-            results.insert(END, "\"" + entryString + "\"")
-        results.insert(END, "has")
-        results.insert(END, resultSentiment)
-        results.insert(END, "Sentiment and Confidence")
-        results.insert(END, str(resultSentimentAndConfidence[1]))
+            if(str(resultSentimentAndConfidence[0]) == "pos"):
+                resultSentiment = "Positive"
+                colorResultDirectInput = "#00FF00"
+            elif (str(resultSentimentAndConfidence[0]) == "neg"):
+                resultSentiment = "Negative"
+                colorResultDirectInput = "#FF0000"
+            else:
+                resultSentiment = "Neutral"
+                colorResultDirectInput = "#0000ff"
+            # displays positive, negative or neutral sentiment
+            popupLabel = Label(popupWindowDirectIput, text=resultSentiment, font=(FontStyle, 20), justify='center', fg=colorResultDirectInput)
+            popupLabel.place(relx=0.31, rely=0.05, relwidth=0.4, relheight=0.1)
+
+            # printing the result
+            results.insert(END, "\n")
+            results.insert(END, "\n")
+            results.insert(END, " Your entry:")
+            if(len(entryString) < 100):
+                results.insert(END, "\"" + entryString + "\"")
+            results.insert(END, "has")
+            results.insert(END, resultSentiment)
+            results.insert(END, "Sentiment and Confidence")
+            results.insert(END, str(resultSentimentAndConfidence[1]))
     else:
         print("entryString"+entryString)
         results.insert(END, "Please enter the text you want to be analysed and then select Analyse-button.")
@@ -305,10 +318,9 @@ class Page2(Page):
            popupWindowLoading = Toplevel()
            popupWindowLoading.wm_title("Loading")
            popupWindowLoading.wm_geometry("300x40")
-           progressbar = Progressbar(popupWindowLoading, orient=HORIZONTAL, length=200, mode='determinate')
-           progressbar.pack(side="top")
-           progressbar.start()
-           popupWindowLoading.after(3000, lambda: popupWindowLoading.destroy()) # Destroy the widget after 30 seconds
+           progressbarLabel = Label(popupWindowLoading, text="Loading the result...", justify='left', font=(FontStyle, 14))
+           progressbarLabel.pack(side="top")
+           popupWindowLoading.after(3000, lambda: popupWindowLoading.destroy()) # Destroy the widget after 3 seconds
 
        buttonAnalyzeInput.bind("<Button-1>", buttonAnalyzeInputClick)
 
