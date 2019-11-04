@@ -135,12 +135,15 @@ def pathToFileCreating(directory_Inputfiles, filename):
 
 # open a file for reading, including unicode for Swedish
 def openFile(pathToFile):
+    fileContent = ''
     try:
         file = codecs.open(pathToFile, "r", encoding='utf-8')  # reads non-ASCII characters from a text file
         fileContent = file.readlines()
         file.close()
     except FileNotFoundError:
         print('The file is not found.')
+    except PermissionError:
+        print("Permission denied for this folder.")
     return fileContent
 
 # copy a file from given input path to an output path
